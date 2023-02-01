@@ -30,8 +30,8 @@ class SubjectsController extends BaseController
         return response()->json($results);
     }
 
-    public function listSubject_ById($subjectCode){
-        $results = Subjects::where('subjectCode',$subjectCode)->get();
+    public function listSubject_ById($sub_code){
+        $results = Subjects::where('subjectCode',$sub_code)->get();
 
         return response()->json($results);
     }

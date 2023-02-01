@@ -43,8 +43,8 @@ class RoomController extends BaseController
         return response()->json($results);
     }
 
-    public function listRoomId($room_id){
-        $result = Room::where('roomId',$room_id)->get();
+    public function listRoomId($id){
+        $result = Room::where('roomId',$id)->get();
 
         return response()->json($result);
     }

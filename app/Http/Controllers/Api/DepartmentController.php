@@ -39,8 +39,8 @@ class DepartmentController extends BaseController
         return response()->json($results);
     }
 
-    public function listDepartment_ByFaculty($facultyId){
-        $results = Department::where('facultyId',$facultyId)->get();
+    public function listDepartment_ByFaculty($faculty_id){
+        $results = Department::where('facultyId',$faculty_id)->get();
 
         return response()->json($results);
     }
