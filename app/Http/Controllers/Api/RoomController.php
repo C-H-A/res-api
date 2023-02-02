@@ -12,22 +12,14 @@ use App\Models\Reservation;
 class RoomController extends BaseController
 {
     public function SearchRoom_DateTime(Request $request){
-        // $results_reser = Reservation::where('roomType','like','%'.$request->roomType.'%')
-        //                         ->where('startDate','like','%'.$request->startDate.'%')
-        //                         ->where('startTime','like','%'.$request->startTime.'%')
-        //                         ->where('endTime','like','%'.$request->endTime.'%')
-        //                         ->get();
+        $results = Room::where('status',1)->get();
+        foreach($results as $key => $value){
+            $results_reser = Reservation::where('roomId',$value['roomId'])->get()->count();
 
-        // $results_room = Room::where('typeId','like','%'.$request->roomType.'%')
-        //                         ->where('status',1)
-        //                         ->get();
-        //     foreach($results_room as $key => $value){
-        //         if($results_room[$key]['roomId'] == $results_reser[0]['roomId']){
-        //             array_splice($results_room,$key);
-        //         }
-        //     }
-        
-        return response()->json($request);                
+            
+            $results[$key]['count'] = $results_reser;
+        }
+        return response()->json($results);
     }
 
     public function recommendRoom(){
