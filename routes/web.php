@@ -89,6 +89,7 @@ $router->post('/addRoom', 'Api\RoomController@addRoom');
 $router->post('/editRoom', 'Api\RoomController@editRoom');
 $router->post('/deleteRoom', 'Api\RoomController@deleteRoom');
 $router->post('/changestatusroom', 'Api\RoomController@changstatusRoom');
+$router->post('/searchroomdatetime', 'Api\RoomController@SearchRoom_DateTime');
 
 //RoomType
 $router->get('/listType', 'Api\RoomTypeController@listRoomType');
@@ -239,6 +240,10 @@ $router->post('/addterm', 'api\TermController@addTerm');
 $router->post('/editterm', 'Api\TermController@editTerm');
 $router->post('/deleteterm', 'Api\TermController@deleteTerm');
 $router->post('/changestatusterm', 'Api\TermController@changestatusTerm');
+
+//Time
+$router->post('/timestart', 'Api\RoomController@listTimeStart');
+$router->get('/timeend', 'Api\RoomController@listTimeEnd');
 
 //PDF
 $router->get('/getreservationpdf/{reser_id}','Api\ReservationController@getReservationPDF');

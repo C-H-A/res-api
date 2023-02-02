@@ -11,6 +11,25 @@ use App\Models\Reservation;
 
 class RoomController extends BaseController
 {
+    public function SearchRoom_DateTime(Request $request){
+        // $results_reser = Reservation::where('roomType','like','%'.$request->roomType.'%')
+        //                         ->where('startDate','like','%'.$request->startDate.'%')
+        //                         ->where('startTime','like','%'.$request->startTime.'%')
+        //                         ->where('endTime','like','%'.$request->endTime.'%')
+        //                         ->get();
+
+        // $results_room = Room::where('typeId','like','%'.$request->roomType.'%')
+        //                         ->where('status',1)
+        //                         ->get();
+        //     foreach($results_room as $key => $value){
+        //         if($results_room[$key]['roomId'] == $results_reser[0]['roomId']){
+        //             array_splice($results_room,$key);
+        //         }
+        //     }
+        
+        return response()->json($request);                
+    }
+
     public function recommendRoom(){
         $results = Room::where('status',1)->get();
         foreach($results as $key => $value){
@@ -190,6 +209,38 @@ class RoomController extends BaseController
         $result = Room_type::where('type_id',$type_id)->get();
 
         return response()->json($result);
+    }
+
+    public function listTimeStart(Request $request){
+        date_default_timezone_set('UTC');
+        $today = date("Y-m-d");
+        $timetoday = date("H:i:s");
+        $timearr = array(
+                    ["value"=>"08:00:00","time"=>"08:00","disabled"=>false],
+                    ["value"=>"09:00:00","time"=>"09:00","disabled"=>false],
+                    ["value"=>"10:00:00","time"=>"10:00","disabled"=>false],
+                    ["value"=>"11:00:00","time"=>"11:00","disabled"=>false],
+                    ["value"=>"12:00:00","time"=>"12:00","disabled"=>false],
+                    ["value"=>"13:00:00","time"=>"13:00","disabled"=>false],
+                    ["value"=>"14:00:00","time"=>"14:00","disabled"=>false],
+                    ["value"=>"15:00:00","time"=>"15:00","disabled"=>false],
+                    ["value"=>"16:00:00","time"=>"16:00","disabled"=>false],
+                    ["value"=>"17:00:00","time"=>"17:00","disabled"=>false],
+                    ["value"=>"18:00:00","time"=>"18:00","disabled"=>false],
+                    ["value"=>"19:00:00","time"=>"19:00","disabled"=>false],
+                    ["value"=>"20:00:00","time"=>"20:00","disabled"=>false],
+                    ["value"=>"21:00:00","time"=>"21:00","disabled"=>false],
+                    ["value"=>"22:00:00","time"=>"22:00","disabled"=>false],
+                    );
+        if($today == $request->date){
+            for($i = 0; $i <= sizeof($timearr); $i++){
+                if($timearr[$i]['value'] == $request->time){
+                    $timearr[$i]['disabled'] == true;
+                }
+            }
+        }
+
+        return response()->json($timearr);
     }
 
 }
