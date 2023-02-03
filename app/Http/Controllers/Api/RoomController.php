@@ -12,12 +12,47 @@ use App\Models\Reservation;
 class RoomController extends BaseController
 {
     public function SearchRoom_DateTime(Request $request){
-        $results = Room::where('status',1)->get();
+        $results = Room::where('typeId','like','%'.$request->roomType.'%')->where('status',1)->get();
         foreach($results as $key => $value){
-            $results_reser = Reservation::where('roomId',$value['roomId'])->get()->count();
+            $results_reser = Reservation::where('roomId',$value['roomId'])
+                                        ->where('startDate',$request->startDate)
+                                        ->select('startDate','startTime','endTime')
+                                        ->orderBy('startTime','asc')->get();
+                foreach($results_reser as $key_reser => $value_reser){
+                    $db_startDate = explode(":",$value_reser['startTime'])[0]; //ตำแหน่ง เริ่มรายการจอง
+                    $db_endDate = explode(":",$value_reser['endTime'])[0]; //ตำแหน่ง สิ้นสุดรายการจอง
+                    $rv_startDate = explode(":",$request->startTime)[0];
+                    $stop = false; //ตัวแปรหยุดการทำงาน
+                    for($i = $db_startDate;$i < $db_endDate; $i++){
+                        if($db_startDate <= $rv_startDate && $rv_startDate < $db_endDate){
+                            $results_reser['display'] = false;
+                            $stop = true;
+                            break;
+                        }else{
+                            $results_reser['display'] = true;
+                            $stop = false;
+                        }
+                    }
 
-            
-            $results[$key]['count'] = $results_reser;
+                    // $results_reser['explode'] = $rv_startDate;
+                    if($stop){ //หยุดการทำงานของ foreach
+                        break;
+                    }
+                    
+                    // if($value_reser['startTime'] == $request->startTime){
+                    //     $results_reser['display'] = false;
+                    //     break;
+                    // }else{
+                    //     $results_reser['display'] = true;
+                    // }
+                }
+
+            if($results_reser != '[]'){
+                $results[$key]['reservation'] = $results_reser['display'];
+            }else{
+                $results[$key]['reservation'] = true;
+            }
+            // $results[$key]['reservation'] = $results_reser;
         }
         return response()->json($results);
     }
@@ -204,6 +239,48 @@ class RoomController extends BaseController
     }
 
     public function listTimeStart(Request $request){
+        date_default_timezone_set('Asia/Bangkok');
+        $today = date("Y-m-d");
+        $timetoday = date("H:i:s");
+        $timearr = array(
+                    ["value"=>"","time"=>"--- เลือกเวลาเริ่มต้น ---","disabled"=>false],
+                    ["value"=>"08:00:00","time"=>"08:00","disabled"=>false],
+                    ["value"=>"09:00:00","time"=>"09:00","disabled"=>false],
+                    ["value"=>"10:00:00","time"=>"10:00","disabled"=>false],
+                    ["value"=>"11:00:00","time"=>"11:00","disabled"=>false],
+                    ["value"=>"12:00:00","time"=>"12:00","disabled"=>false],
+                    ["value"=>"13:00:00","time"=>"13:00","disabled"=>false],
+                    ["value"=>"14:00:00","time"=>"14:00","disabled"=>false],
+                    ["value"=>"15:00:00","time"=>"15:00","disabled"=>false],
+                    ["value"=>"16:00:00","time"=>"16:00","disabled"=>false],
+                    ["value"=>"17:00:00","time"=>"17:00","disabled"=>false],
+                    ["value"=>"18:00:00","time"=>"18:00","disabled"=>false],
+                    ["value"=>"19:00:00","time"=>"19:00","disabled"=>false],
+                    ["value"=>"20:00:00","time"=>"20:00","disabled"=>false],
+                    ["value"=>"21:00:00","time"=>"21:00","disabled"=>false],
+                    ["value"=>"22:00:00","time"=>"22:00","disabled"=>false],
+                    );
+        
+        if($today == $request->date){
+            for($i = 0; $i <= sizeof($timearr)-1; $i++){
+                if((explode(":",$timetoday)[0]) > (explode(":",$timearr[$i]['value'])[0])){
+                    $timearr[$i]['disabled'] = true;
+            //         // echo $timearr[$i]['disabled'];
+                }else{
+                    $timearr[$i]['disabled'] = false;
+                }
+            //     // $timearr[$i]['disabled'] == true;
+            }
+        }else{
+            for($i = 0; $i <= sizeof($timearr)-1; $i++){
+                $timearr[$i]['disabled'] = false;
+            }
+        }
+
+        return response()->json($timearr);
+    }
+
+    public function listTimeEnd(Request $request){
         date_default_timezone_set('UTC');
         $today = date("Y-m-d");
         $timetoday = date("H:i:s");
