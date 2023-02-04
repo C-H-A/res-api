@@ -8,12 +8,17 @@ use App\Models\Room_type;
 use App\Models\Room_cost;
 use App\Models\Building;
 use App\Models\Reservation;
+use App\Models\Images;
 
 class RoomController extends BaseController
 {
     public function SearchRoom_DateTime(Request $request){
         $results = Room::where('typeId','like','%'.$request->roomType.'%')->where('status',1)->get();
         foreach($results as $key => $value){
+            $result_type = Room_type::where('typeId',$value['typeId'])
+                ->get();
+            $result_bd = Building::where('building_number',$value['buildingNumber'])
+                ->get();
             $results_reser = Reservation::where('roomId',$value['roomId'])
                                         ->where('startDate',$request->startDate)
                                         ->select('startDate','startTime','endTime')
@@ -33,18 +38,9 @@ class RoomController extends BaseController
                             $stop = false;
                         }
                     }
-
-                    // $results_reser['explode'] = $rv_startDate;
                     if($stop){ //หยุดการทำงานของ foreach
                         break;
                     }
-                    
-                    // if($value_reser['startTime'] == $request->startTime){
-                    //     $results_reser['display'] = false;
-                    //     break;
-                    // }else{
-                    //     $results_reser['display'] = true;
-                    // }
                 }
 
             if($results_reser != '[]'){
@@ -53,6 +49,8 @@ class RoomController extends BaseController
                 $results[$key]['reservation'] = true;
             }
             // $results[$key]['reservation'] = $results_reser;
+            $results[$key]['typeId'] = $result_type[0]['typeName'];
+            $results[$key]['buildingNumber'] = $result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
         }
         return response()->json($results);
     }
@@ -91,6 +89,20 @@ class RoomController extends BaseController
 
     public function listRoomId($id){
         $result = Room::where('roomId',$id)->get();
+        foreach($result as $key => $value){
+            $result_img = Images::where('imgGroup',$value['roomId'])->get();
+            $result_type = Room_type::where('typeId',$value['typeId'])
+                ->get();
+            $result_bd = Building::where('building_number',$value['buildingNumber'])
+                ->get();
+            
+            if($result_img != '[]'){
+                $result[$key]['images'] = $result_img;
+            }
+            $result[$key]['capacity'] = $value['capacity']." ที่นั่ง";
+            $result[$key]['typeId'] = $result_type[0]['typeName'];
+            $result[$key]['buildingNumber'] = "อาคาร ".$result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
+        }
 
         return response()->json($result);
     }
@@ -265,18 +277,15 @@ class RoomController extends BaseController
             for($i = 0; $i <= sizeof($timearr)-1; $i++){
                 if((explode(":",$timetoday)[0]) > (explode(":",$timearr[$i]['value'])[0])){
                     $timearr[$i]['disabled'] = true;
-            //         // echo $timearr[$i]['disabled'];
                 }else{
                     $timearr[$i]['disabled'] = false;
                 }
-            //     // $timearr[$i]['disabled'] == true;
             }
         }else{
             for($i = 0; $i <= sizeof($timearr)-1; $i++){
                 $timearr[$i]['disabled'] = false;
             }
         }
-
         return response()->json($timearr);
     }
 

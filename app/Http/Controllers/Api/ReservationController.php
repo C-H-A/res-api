@@ -23,6 +23,35 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 class ReservationController extends BaseController
 {
+    public function eventReservation(Request $request){
+        $results = Reservation::where('roomId',$request->roomId)
+                                ->get();
+        $event = array([
+                    'id' => '',
+                    'title' => '',
+                    'start' => '',
+                    'end' => ''
+                    ]);
+        foreach($results as $key => $value){
+            $result_course = Course::join('subjects','course.subjectCode','=','subjects.subjectCode')->select('course.courseId','course.groupCode','subjects.subjectCode','subjects.subjectName')
+                                    ->where('course.courseId','like','%'.$value['courseId'].'%')
+                                    ->get();
+            $result_room = Room::where('roomId',$value['roomId'])->get();
+            foreach($result_course as $key_course => $value_course){
+                $result_subject = Subjects::where('subjectCode',$value_course['subjectCode'])->get();
+
+                $result_professor = Professors::where('id',$value_course['professorId'])->get();
+            }
+            $results[$key]['courseId'] = $result_course[0];
+            $event[$key]['id'] = $results[$key]['reservationId'];
+            $event[$key]['title'] = $results[$key]['courseId']['subjectCode']." ".$results[$key]['courseId']['subjectName'];
+            $event[$key]['start'] = $results[$key]['startDate']."T".$results[$key]['startTime'];
+            $event[$key]['end'] = $results[$key]['endDate']."T".$results[$key]['endTime'];
+        }
+
+        return response()->json($event);
+    }
+
     public function getreservationAll(){
         $result = Reservation::get();
         

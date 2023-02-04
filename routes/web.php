@@ -54,6 +54,7 @@ $router->get('/petitionreservation','Api\ReservationController@petitionReservati
 $router->get('/petitionreservationterm/{roomId}','Api\ReservationController@petitionReservationTerm');
 $router->post('/editpetitionReservation','Api\ReservationController@editpetitionReservation');
 $router->post('/edittestreservationterm','Api\ReservationController@edittestReservationTerm');
+$router->post('/listeventreservation','Api\ReservationController@eventReservation');
 
 $router->get('/getreservationAll','Api\ReservationController@getreservationAll');
 $router->get('/getreservationid/{id}','Api\ReservationController@getreservationid');
