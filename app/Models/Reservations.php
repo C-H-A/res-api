@@ -2,8 +2,8 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
-class Professors extends Model{
+class Reservations extends Model{
 
-    public $table = 'professors';
+    public $table = 'reservations';
     public $timestamps = false;
 }

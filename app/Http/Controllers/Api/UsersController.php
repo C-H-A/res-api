@@ -206,12 +206,12 @@ class UsersController extends BaseController
     }
     //ตรวจสอบ username บุคคลภายในหรือภายนอก
     public function CheckUsername(Request $request){
-        $username = explode(".",$request->username);
+        $username = explode("@rmuti",$request->username);
         // $token = str_random(60);
         $router = "https://service.eng.rmuti.ac.th/eng-login/login/?id=6&secret=RESER&msg=";
 
         if(count($username) == 1){
-            $result = Users::where('username',$request->username)
+            $result = Users::where('mail',$request->username)
                         ->where('status',1)
                         ->select('username','username','levelId')
                         ->get();
@@ -223,7 +223,7 @@ class UsersController extends BaseController
             
             return response()->json($resp);
 
-        }else if(count($username) > 1 && strlen($username[1]) == 2){
+        }else if(count($username) >= 2){
 
             $resp = array('status'=>2, 'message'=>'SSO', 'link'=>$router);
             
@@ -232,7 +232,7 @@ class UsersController extends BaseController
     }
     //เข้าสู่ระบบเฉพาะบุคคลภายนอก
     public function UserLogin(Request $request){
-        $result = Users::where('username',$request->username)
+        $result = Users::where('mail',$request->username)
                         ->where('password',md5($request->password))
                         ->where('status',1)
                         ->get();

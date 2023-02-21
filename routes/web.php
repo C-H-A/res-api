@@ -73,6 +73,8 @@ $router->post('/getreservationday','Api\ReservationController@getReservationDay'
 $router->post('/reservationtime','Api\ReservationController@SearchRoomByTime');
 
 //Reservation Term
+$router->post('/reserTermDay','Api\ReservationController@reservationTermByDay');
+$router->post('/reserTerm','Api\ReservationController@reservationTerm');
 $router->get('/getreservationTerm/{roomId}','Api\ReservationController@getReservationTerm');
 $router->get('/testreservationTerm/{roomId}','Api\ReservationController@getTestReservationTerm');
 $router->post('/addReservationTerm', 'Api\ReservationController@addReservationTerm');

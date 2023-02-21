@@ -5,6 +5,7 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Reservation;
+use App\Models\Reservations;
 use App\Models\Room_type;
 use App\Models\User;
 use App\Models\User_level;
@@ -23,6 +24,100 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 class ReservationController extends BaseController
 {
+    public function reservationTermByDay(Request $request){
+        $reservationT = Reservations::where('roomId',$request->roomId)
+                                    ->where('reservationStatus',1)
+                                    ->where('reservationDay',$request->reservationDay)
+                                    ->orWhere('startDate','like','%'.$request->startDate.'%')
+                                    ->join('course','reservations.courseId','=','course.courseId')
+                                    ->select(Reservations::raw('GROUP_CONCAT(reservations.reservationId) as reservationId'),'reservations.startDate','reservations.endDate','reservations.startTime','reservations.endTime','reservations.reservationDay','course.subjectCode',
+                                    Professors::raw('GROUP_CONCAT(course.professorId) as professorId'),Groups::raw('GROUP_CONCAT(course.groupCode) as groupCode'))
+                                    ->orderBy('reservations.startTime','ASC')->groupBy('course.subjectCode','reservations.startTime','reservations.endTime','reservations.startDate','reservations.endDate','reservations.reservationDay')
+                                    ->get();
+        
+        $event = array([
+            'daysOfWeek' => '-',
+            'id' => '-',
+            'title' => '-',
+            'startRecur' => '-',
+            'endRecur' => '-',
+            'startTime' => '',
+            'endTime' => ''
+            ]);
+        $day = array('อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์');
+
+            foreach($reservationT as $key => $value){
+                $subject = Subjects::where('subjectCode',$value['subjectCode'])->get();
+                $arr_professor = explode(',',$value['professorId']);
+                $professor = Professors::whereIn('professorId',$arr_professor)->get();
+                $profes = '';
+                    foreach($professor as $keyp => $valuep){
+                        $profes = 'อ.'.$valuep['fullName'].', '.$profes;
+                    }
+                    $profes = substr($profes, 0, -2);
+
+                $reservationT[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
+                $reservationT[$key]['professorId'] = $profes;
+                for($i = 0;$i < count($day);$i++){
+                    if($i == $reservationT[$key]['reservationDay']){
+                        $event[$key]['daysOfWeek'] = $day[$i];
+                    }
+                }
+                // $event[$key]['daysOfWeek'] = [$reservationT[$key]['reservationDay']];
+                $event[$key]['id'] = $reservationT[$key]['reservationId'];
+                $event[$key]['title'] = $reservationT[$key]['subjectCode']." | ".$reservationT[$key]['groupCode']." | ".$reservationT[$key]['professorId'];
+                $event[$key]['startRecur'] = $reservationT[$key]['startDate'];
+                $event[$key]['endRecur'] = $reservationT[$key]['endDate'];
+                $event[$key]['startTime'] = substr($reservationT[$key]['startTime'],0, -3);
+                $event[$key]['endTime'] = substr($reservationT[$key]['endTime'],0, -3);
+                // $event[$key]['borderColor'] = "green";
+            }
+
+        return response()->json($event);
+    }
+
+    public function reservationTerm(Request $request){
+        $reservationT = Reservations::where('roomId',$request->roomId)->where('reservationStatus',1)->join('course','reservations.courseId','=','course.courseId')
+                                    ->select(Reservations::raw('GROUP_CONCAT(reservations.reservationId) as reservationId'),'reservations.startDate','reservations.endDate','reservations.startTime','reservations.endTime','reservations.reservationDay','course.subjectCode',
+                                    Professors::raw('GROUP_CONCAT(course.professorId) as professorId'),Groups::raw('GROUP_CONCAT(course.groupCode) as groupCode'))
+                                    ->orderBy('reservations.startTime','ASC')->groupBy('course.subjectCode','reservations.startTime','reservations.endTime','reservations.startDate','reservations.endDate','reservations.reservationDay')
+                                    ->get();
+        // $reservationT = Reservations::join('course','reservations.courseId','=','course.courseId')->get();
+        $event = array([
+            'daysOfWeek' => '',
+            'id' => '',
+            'title' => '',
+            'startRecur' => '',
+            'endRecur' => '',
+            'startTime' => '',
+            'endTime' => ''
+            ]);
+            foreach($reservationT as $key => $value){
+                $subject = Subjects::where('subjectCode',$value['subjectCode'])->get();
+                $arr_professor = explode(',',$value['professorId']);
+                $professor = Professors::whereIn('professorId',$arr_professor)->get();
+                $profes = '';
+                    foreach($professor as $keyp => $valuep){
+                        $profes = 'อ.'.$valuep['fullName'].', '.$profes;
+                    }
+                    $profes = substr($profes, 0, -2);
+
+                $reservationT[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
+                $reservationT[$key]['professorId'] = $profes;
+                
+                $event[$key]['daysOfWeek'] = [$reservationT[$key]['reservationDay']];
+                $event[$key]['id'] = $reservationT[$key]['reservationId'];
+                $event[$key]['title'] = $reservationT[$key]['subjectCode']." | ".$reservationT[$key]['groupCode']." | ".$reservationT[$key]['professorId'];
+                $event[$key]['startRecur'] = $reservationT[$key]['startDate'];
+                $event[$key]['endRecur'] = $reservationT[$key]['endDate'];
+                $event[$key]['startTime'] = $reservationT[$key]['startTime'];
+                $event[$key]['endTime'] = $reservationT[$key]['endTime'];
+                // $event[$key]['borderColor'] = "green";
+            }
+
+        return response()->json($event);
+    }
+
     public function eventReservation(Request $request){
         $results = Reservation::where('roomId',$request->roomId)
                                 ->get();
