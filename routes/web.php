@@ -30,7 +30,14 @@ $router->get('/logout-receive','Api\UsersController@ReceiveLogout'); //
 //Register //
 $router->post('/duplicatepersonal','Api\UsersController@DuplicatePersonalId'); //
 $router->post('/duplicateusername','Api\UsersController@DuplicateUsername'); //
+$router->post('/duplicateEmail','Api\MemberController@DuplicateEmail'); //
 $router->post('/register','Api\UsersController@Register'); //
+$router->post('/user/register','Api\MemberController@Register'); //
+
+//Login
+$router->post('/user/checktype','Api\MemberController@CheckTypeUser'); //
+$router->post('/user/login','Api\MemberController@Login'); //
+$router->post('/user/session','Api\MemberController@SessionLogin'); //
 
 //Users
 $router->get('/listusers','Api\UsersController@listUsers');
