@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Str;
+use App\Http\Controllers\Admin\RoomController;
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 /*
@@ -257,6 +258,10 @@ $router->get('/timeend', 'Api\RoomController@listTimeEnd');
 
 //PDF
 $router->get('/getreservationpdf/{reser_id}','Api\ReservationController@getReservationPDF');
+
+//Admin
+$router->get('/admin/rooms', 'Api\RoomController@listRooms');
+$router->get('/admin/building', 'Api\BuildingController@listBuilding');
 
 Route::get('storage/{filename}', function ($filename)
 {

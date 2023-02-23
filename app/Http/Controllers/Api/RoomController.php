@@ -321,4 +321,19 @@ class RoomController extends BaseController
         return response()->json($timearr);
     }
 
+    //admin
+    public function listRooms(){
+        $results = Room::select('roomId','roomName','roomDescription','typeId','buildingNumber','capacity','status')->get();
+        foreach($results as $key => $value){
+            $result_type = Room_type::where('typeId',$value['typeId'])
+                ->get();
+            $result_bd = Building::where('building_number',$value['buildingNumber'])
+                ->get();
+            $results[$key]['typeId'] = $result_type[0]['typeName'];
+            $results[$key]['buildingNumber'] = $result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
+            // $results[$key]['count'] = $all_results->count();
+        }
+        return response()->json($results);
+    }
+
 }

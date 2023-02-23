@@ -11,13 +11,19 @@ use Illuminate\Support\Facades\URL;
 
 class MemberController extends BaseController
 {
+    //เคลียร์โทเค็น
+    public function clearToken($email){
+        Member::where('email',$email)->update(['token' => '']);
+    }
+
     //ตรวจสอบการอยู่ในระบบ
     public function SessionLogin(Request $request){
-        $sesion = Member::where('token',$request->token)->get();
+        $sesion = Member::where('email',$request->email)->where('token',$request->token)->where('is_admin',$request->is_admin)->get();
         if($sesion != "[]"){
             $resp = array('status'=>1, 'message'=>'Session True');
         }else{
             $resp = array('status'=>0, 'message'=>'Session Fail => Log Out');
+            $this->clearToken($request->email);
         }
         return response()->json($resp);
     }
