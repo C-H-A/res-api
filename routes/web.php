@@ -259,9 +259,53 @@ $router->get('/timeend', 'Api\RoomController@listTimeEnd');
 //PDF
 $router->get('/getreservationpdf/{reser_id}','Api\ReservationController@getReservationPDF');
 
-//Admin
-$router->get('/admin/rooms', 'Api\RoomController@listRooms');
-$router->get('/admin/building', 'Api\BuildingController@listBuilding');
+//ROOM
+$router->get('/user/rooms', 'Api\RoomController@listAllRoom');
+$router->get('/user/roomid/{roomId}', 'Api\RoomController@listRoomId');
+$router->get('/user/rooms/recommend', 'Api\RoomController@recommendRoom');
+$router->post('user/rooms/searchdatetime', 'Api\RoomController@SearchRoom_DateTime');
+$router->get('/admin/rooms', 'Api\RoomController@listRooms_AllStatus');
+$router->get('/admin/roomid/{roomId}', 'Api\RoomController@listRoomById');
+$router->post('/admin/rooms/add', 'Api\RoomController@addRoom');
+$router->post('/admin/rooms/edit', 'Api\RoomController@editRoom');
+$router->post('/admin/rooms/del', 'Api\RoomController@deleteRoom');
+$router->post('/admin/rooms/change', 'Api\RoomController@changstatusRoom');
+
+//TYPE
+$router->get('/user/type', 'Api\RoomTypeController@listTypeRoom');
+$router->get('/admin/type', 'Api\RoomTypeController@listTypeRooms_AllStatus');
+$router->get('/admin/typeid/{typeId}', 'Api\RoomTypeController@listTypeRoom_ById');
+$router->post('/admin/type/add', 'Api\RoomTypeController@addTypeRoom');
+$router->post('/admin/type/edit', 'Api\RoomTypeController@editTypeRoom');
+$router->post('/admin/type/del', 'Api\RoomTypeController@deleteTypeRoom');
+$router->post('/admin/type/change', 'Api\RoomTypeController@changstatusTypeRoom');
+
+//BUILDING
+$router->get('/user/building', 'Api\BuildingController@listBuilding');
+$router->get('/admin/building', 'Api\BuildingController@listBuilding_AllStatus');
+$router->get('/admin/buildingno/{buildingNumber}', 'Api\BuildingController@listBuildingNumber');
+$router->post('/admin/building/add', 'Api\BuildingController@addBuilding');
+$router->post('/admin/building/edit', 'Api\BuildingController@editBuilding');
+$router->post('/admin/building/del', 'Api\BuildingController@deleteBuilding');
+$router->post('/admin/building/change', 'Api\BuildingController@changstatusBuilding');
+
+//COURSE
+$router->get('/user/course', 'Api\CourseController@listCourse');
+$router->get('/admin/course', 'Api\CourseController@listCourses_AllStatus');
+$router->get('/admin/courseid/{courseId}', 'Api\CourseController@listCourse_Id');
+$router->post('/admin/course/add', 'Api\CourseController@addCourse');
+$router->post('/admin/course/edit', 'Api\CourseController@editCourse');
+$router->post('/admin/course/del', 'Api\CourseController@deleteCourse');
+$router->post('/admin/course/change', 'Api\CourseController@changstatusCourse');
+
+//SUBJECT
+$router->get('/user/subject', 'Api\SubjectsController@listSubjects');
+$router->get('/admin/subject', 'Api\SubjectsController@listSubjects_AllStatus');
+$router->get('/admin/subjectcode/{subjectCode}', 'Api\SubjectsController@listSubject_ById');
+$router->post('/admin/subject/add', 'Api\SubjectsController@addSubject');
+$router->post('/admin/subject/edit', 'Api\SubjectsController@editSubject');
+$router->post('/admin/subject/del', 'Api\SubjectsController@changstatusSubject');
+$router->post('/admin/subject/change', 'Api\SubjectsController@deleteSubject');
 
 Route::get('storage/{filename}', function ($filename)
 {

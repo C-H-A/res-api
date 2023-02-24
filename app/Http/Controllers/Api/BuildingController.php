@@ -8,54 +8,43 @@ use App\Models\Building;
 class BuildingController extends BaseController
 {
     public function listBuilding(){
-        $results = Building::get();
+        $results = Building::where('status',1)->get();
 
         return response()->json($results);
     }
 
-    public function getBuildingNumber($building_number){
-        $results = Building::where('building_number',$building_number)->get();
+    public function listBuildingNumber($buildingNumber){
+        $results = Building::where('buildingNumber',$buildingNumber)->get();
 
         return response()->json($results);
     }
 
     public function listBuilding_AllStatus(){
         $results = Building::get();
-        foreach($results as $key => $value){
-            $results[$key]['count'] = $results->count();
-        }
-        return response()->json($results);
-    }
-
-    public function Search_Building(Request $request){
-        $results = Building::where('building_number','like','%'.$request->building_number.'%')
-                            ->where('building_name','like','%'.$request->building_name.'%')
-                            ->offset($request->page)->limit('10')
-                            ->get();
-        $all_results = Building::where('building_number','like','%'.$request->building_number.'%')
-                            ->where('building_name','like','%'.$request->building_name.'%')
-                            ->get();
-        foreach($results as $key => $value){
-            $results[$key]['count'] = $all_results->count();
-        }
-
         return response()->json($results);
     }
 
     public function addBuilding(Request $request){
+        $result = Building::where('buildingNumber',$request->buildingNumber)->get();
+        $resp = array('status'=>0, 'message'=>'');
         $newBuilding = new Building;
-        $newBuilding->building_number  = $request->building_number;
-        $newBuilding->building_name    = $request->building_name;
+        $newBuilding->buildingNumber  = $request->buildingNumber;
+        $newBuilding->buildingName    = $request->buildingName;
         $newBuilding->status           = 1;
-        $newBuilding->save();
+        if($result == '[]'){
+            $newBuilding->save();
+            $resp = array('status'=>1, 'message'=>'เพิ่มอาคาร : '.$request->buildingNumber.' สำเร็จ');
+        }else{
+            $resp = array('status'=>0, 'message'=>'เพิ่มอาคารไม่สำเร็จ หมายเหตุ : '.$request->buildingNumber.' หมายเลขอาคารซ้ำ');
+        }
 
-        return response()->json($request);
+        return response()->json($resp);
     }
 
     public function editBuilding(Request $request){
-        Building::where('building_number',$request->building_number)
+        Building::where('buildingNumber',$request->buildingNumber)
             ->update([
-                'building_name' => $request->building_name
+                'buildingName' => $request->buildingName
             ]);
 
         $resp = array('status'=>1, 'message'=>'Edit success');
@@ -63,19 +52,33 @@ class BuildingController extends BaseController
     }
 
     public function deleteBuilding(Request $request){
-        $deleteBuilding = Building::where('building_number',$request->building_number)->delete();
+        $result = Building::join('room','building.buildingNumber','=','room.buildingNumber')
+                            ->select('building.buildingNumber','building.buildingNumber','room.roomid')
+                            ->where('building.buildingNumber',$request->buildingNumber)->get();
+        $resp = array('status'=>1, 'message'=>'');
+            if($result == '[]'){
+                $deleteBuilding = Building::where('buildingNumber',$request->buildingNumber)->delete();
+                $resp = array('status'=>1, 'message'=>'ลบอาคารสำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'ลบอาคารไม่สำเร็จ หมายเหตุ : อาคาร '.$request->buildingNumber.' มีรายการห้องอยู่');
+            }
 
-        return response()->json($request);
+        return response()->json($resp);
     }
 
     public function changstatusBuilding(Request $request){
-        Building::where('building_number',$request->building_number)
-            ->update([
-                'status' => $request->status
-            ]);
-
-        $resp = array('status'=>1, 'message'=>'Change Status Success');
-        return response()->json($request);
+        $result = Building::join('room','building.buildingNumber','=','room.buildingNumber')
+                            ->select('building.buildingNumber','building.buildingNumber','room.roomid')
+                            ->where('building.buildingNumber',$request->buildingNumber)->get();
+        $resp = array('status'=>1, 'message'=>'');
+            if($result == '[]'){
+                Building::where('buildingNumber',$request->buildingNumber)
+                        ->update(['status' => $request->status]);
+                $resp = array('status'=>1, 'message'=>'เปลี่ยนสถานะอาคารสำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'เปลี่ยนสถานะอาคารไม่สำเร็จ หมายเหตุ : อาคาร '.$request->buildingNumber.' มีรายการห้องอยู่');
+            }
+        return response()->json($resp);
     }
 
 }

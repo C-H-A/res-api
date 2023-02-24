@@ -10,113 +10,35 @@ use App\Models\Program;
 
 class SubjectsController extends BaseController
 {
-    public function listSubjects($page){
-        $results = Subjects::where('status',1)->offset($page)->limit('10')->get();
-        $all_results = Subjects::where('status',1)->get();
+    public function listSubjects(){
+        $results = Subjects::where('status',1)->get();
         foreach($results as $key => $value){
-
             $result_faculty = Faculty::where('facultyId',$value['facultyId'])
                 ->get();
             $result_education = Education::where('educationId',$value['educationLevel'])
                 ->get();
-            // $result_program = Program::where('programId',$value['programId'])
-            //     ->get();
-            // $results[$key]['programId'] = $result_program[0]['programId']." : ".$result_program[0]['programName'];
             $results[$key]['facultyId'] = $result_faculty[0]['facultyId']." : ".$result_faculty[0]['facultyName'];
             $results[$key]['educationLevel'] = $result_education[0]['educationName'];
-            $results[$key]['count'] = $all_results->count();
         }
 
         return response()->json($results);
     }
 
-    public function listSubject_ById($sub_code){
-        $results = Subjects::where('subjectCode',$sub_code)->get();
+    public function listSubject_ById($subjectCode){
+        $results = Subjects::where('subjectCode',$subjectCode)->get();
 
         return response()->json($results);
     }
 
-    public function listSubjects_AllStatus($page){
-        $results = Subjects::offset($page)->limit('10')->get();
-        $all_results = Subjects::get();
+    public function listSubjects_AllStatus(){
+        $results = Subjects::get();
         foreach($results as $key => $value){
-
             $result_faculty = Faculty::where('facultyId',$value['facultyId'])
                 ->get();
             $result_education = Education::where('educationId',$value['educationLevel'])
                 ->get();
-            // $result_program = Program::where('programId',$value['programId'])
-            //     ->get();
-            // $results[$key]['programId'] = $result_program[0]['programId']." : ".$result_program[0]['programName'];
             $results[$key]['facultyId'] = $result_faculty[0]['facultyId']." : ".$result_faculty[0]['facultyName'];
             $results[$key]['educationLevel'] = $result_education[0]['educationName'];
-            $results[$key]['count'] = $all_results->count();
-            
-        }
-        // $results['count'] = $all_results->count();
-
-        return response()->json($results);
-    }
-
-    public function Search_Subjects(Request $request){
-        $results = Subjects::where('subjectCode','like','%'.$request->subjectCode.'%')
-                            ->Where('subjectName','like','%'.$request->subjectName.'%')
-                            ->Where('educationLevel','like','%'.$request->educationLevel.'%')
-                            ->Where('facultyId','like','%'.$request->facultyId.'%')
-                            // ->Where('programId','like','%'.$request->programId.'%')
-                            ->offset($request->page)->limit('10')
-                            ->get();
-        $all_results = Subjects::where('subjectCode','like','%'.$request->subjectCode.'%')
-                            ->Where('subjectName','like','%'.$request->subjectName.'%')
-                            ->Where('educationLevel','like','%'.$request->educationLevel.'%')
-                            ->Where('facultyId','like','%'.$request->facultyId.'%')
-                            // ->Where('programId','like','%'.$request->programId.'%')
-                            ->get();
-        foreach($results as $key => $value){
-
-            $result_faculty = Faculty::where('facultyId',$value['facultyId'])
-                ->get();
-            $result_education = Education::where('educationId',$value['educationLevel'])
-                ->get();
-            // $result_program = Program::where('programId',$value['programId'])
-            //     ->get();
-            // $results[$key]['programId'] = $result_program[0]['programId']." : ".$result_program[0]['programName'];
-            $results[$key]['facultyId'] = $result_faculty[0]['facultyId']." : ".$result_faculty[0]['facultyName'];
-            $results[$key]['educationLevel'] = $result_education[0]['educationName'];
-            $results[$key]['count'] = $all_results->count();
-        }
-
-        return response()->json($results);
-    }
-
-    public function Search_Subjects_Active(Request $request){
-        $results = Subjects::where('subjectCode','like','%'.$request->subjectCode.'%')
-                            ->Where('subjectName','like','%'.$request->subjectName.'%')
-                            ->Where('educationLevel','like','%'.$request->educationLevel.'%')
-                            ->Where('facultyId','like','%'.$request->facultyId.'%')
-                            // ->Where('programId','like','%'.$request->programId.'%')
-                            ->where('status','1')
-                            ->offset($request->page)->limit('10')
-                            ->get();
-        $all_results = Subjects::where('subjectCode','like','%'.$request->subjectCode.'%')
-                            ->Where('subjectName','like','%'.$request->subjectName.'%')
-                            ->Where('educationLevel','like','%'.$request->educationLevel.'%')
-                            ->Where('facultyId','like','%'.$request->facultyId.'%')
-                            ->where('status','1')
-                            // ->Where('programId','like','%'.$request->programId.'%')
-                            ->get();
-        foreach($results as $key => $value){
-
-            $result_faculty = Faculty::where('facultyId',$value['facultyId'])
-                ->get();
-            $result_education = Education::where('educationId',$value['educationLevel'])
-                ->get();
-            // $result_program = Program::where('programId',$value['programId'])
-            //     ->get();
-            // $results[$key]['programId'] = $result_program[0]['programId']." : ".$result_program[0]['programName'];
-            $results[$key]['facultyId'] = $result_faculty[0]['facultyId']." : ".$result_faculty[0]['facultyName'];
-            $results[$key]['educationLevel'] = $result_education[0]['educationName'];
-            $results[$key]['count'] = $all_results->count();
         }
 
         return response()->json($results);

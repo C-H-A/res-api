@@ -7,52 +7,34 @@ use App\Models\Room_type;
 
 class RoomTypeController extends BaseController
 {
-    public function listRoomType(){
+    public function listTypeRoom(){
         $results = Room_type::where('status',1)->get();
-
         return response()->json($results);
     }
 
-    public function listRoomType_ById($type_id){
-        $result = Room_type::where('typeId',$type_id)->get();
-
+    public function listTypeRoom_ById($typeId){
+        $result = Room_type::where('typeId',$typeId)->get();
         return response()->json($result);
     }
 
     public function listTypeRooms_AllStatus(){
         $results = Room_type::get();
-        foreach($results as $key => $value){
-            $results[$key]['count'] = $results->count();
-        }
-        return response()->json($results);
-    }
-
-    public function Search_TypeRoom(Request $request){
-        $results = Room_type::where('typeName','like','%'.$request->type_name.'%')
-                            ->offset($request->page)->limit('10')
-                            ->get();
-        $all_results = Room_type::where('typeName','like','%'.$request->type_name.'%')
-                            ->get();
-        foreach($results as $key => $value){
-            $results[$key]['count'] = $all_results->count();
-        }
-
         return response()->json($results);
     }
 
     public function addTypeRoom(Request $request){
         $newRoomType = new Room_type;
-        $newRoomType->typeName  = $request->type_name;
-        $newRoomType->status     = 1;
+        $newRoomType->typeName  = $request->typeName;
+        $newRoomType->status    = 1;
         $newRoomType->save();
 
         return response()->json($request);
     }
 
     public function editTypeRoom(Request $request){
-        Room_type::where('typeId',$request->type_id)
+        Room_type::where('typeId',$request->typeId)
             ->update([
-                'typeName' => $request->type_name,
+                'typeName' => $request->typeName,
             ]);
 
         $resp = array('status'=>1, 'message'=>'Edit success');
@@ -60,19 +42,36 @@ class RoomTypeController extends BaseController
     }
 
     public function deleteTypeRoom(Request $request){
-        $deleteRoomType = Room_type::where('typeId',$request->type_id)->delete();
+        $results = Room_type::join('room','room_type.typeId','=','room.typeId')
+                            ->select('room_type.typeId','room_type.typeName','room.roomId')
+                            ->where('room_type.typeId',$request->typeId)->get();
+        $resp = array('status'=>0, 'message'=>'Delete Fail');
+            if($results == '[]'){
+                $deleteRoomType = Room_type::where('typeId',$request->typeId)->delete();
+                $resp = array('status'=>1, 'message'=>'ลบประเภทห้องสำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'ลบประเภทห้องไม่สำเร็จ เนื่องจากกำลังถูกใช้งาน');
+            }
 
-        return response()->json($request);
+        return response()->json($resp);
     }
 
     public function changstatusTypeRoom(Request $request){
-        Room_type::where('typeId',$request->type_id)
-            ->update([
-                'status' => $request->status
-            ]);
-
+        $results = Room_type::join('room','room_type.typeId','=','room.typeId')
+                            ->select('room_type.typeId','room_type.typeName','room.roomId')
+                            ->where('room_type.typeId',$request->typeId)->get();
         $resp = array('status'=>1, 'message'=>'Change Status Success');
-        return response()->json($request);
+            if($results == '[]'){
+                Room_type::where('typeId',$request->typeId)
+                        ->update([
+                            'status' => $request->status
+                        ]);
+                $resp = array('status'=>1, 'message'=>'เปลี่ยนสถานะประเภทห้องสำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'เปลี่ยนสถานะประเภทห้องไม่สำเร็จ');
+            }
+
+        return response()->json($resp);
     }
 
 }

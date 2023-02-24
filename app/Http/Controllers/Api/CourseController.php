@@ -11,173 +11,46 @@ use App\Models\Groups;
 
 class CourseController extends BaseController
 {
-    public function listCourse($page){
-        $strpro = "";
-        $results = Course::where('status','1')->offset($page)->limit('10')->get();
-        $all_results = Course::where('status','1')->get();
+    public function listCourse(){
+        $results = Course::where('status','1')->get();
         foreach($results as $key => $value){
+            $arr_professor = explode(',',$value['professorId']);
+            $professor = Professors::whereIn('professorId', $arr_professor)->get();
+            $profes = '';
+                    foreach($professor as $keyp => $valuep){
+                        $profes = 'อ.'.$valuep['fullName'].', '.$profes;
+                    }
+                    $profes = substr($profes, 0, -2);
 
-            $results_professor_id = explode('+',$value['professorId']);
-            $result_professor = Professors::whereIn('id', $results_professor_id)
-                ->get();
-            $result_group = Groups::where('groupCode', $value['groupCode'])
-                ->get();
-            $result_subject = Subjects::where('subjectCode',$value['subjectCode'])
-                ->get();
-            $strpro = "";
-            foreach($result_professor as $key_pro => $value_pro){
-                $strpro = $strpro.$value_pro['firstNameThai']." ".$value_pro['lastNameThai'].", ";
-            }
-            $results[$key]['professorId'] = $strpro;
-            $results[$key]['subjectCode'] = $result_subject;
-            // $results[$key]['group_code'] = $result_group;
-            $results[$key]['count'] = $all_results->count();
+            $subject = Subjects::where('subjectCode',$value['subjectCode'])->get();
+            
+            $results[$key]['professorId'] = $profes;
+            $results[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
         }
         return response()->json($results);
     }
 
-    public function listCourse_Id($id){
-        $result = Course::where('courseId',$id)->get();
-
-        foreach($result as $key => $value){
-            $result_subject = Subjects::where('subjectCode',$value['subjectCode'])
-                ->get();
-            $results_professor_id = explode('+',$value['professorId']);
-            $result_professor = Professors::whereIn('id', $results_professor_id)
-                ->get();
-            $results_group_id = explode('+',$value['groupCode']);
-            $result_group = Groups::whereIn('groupCode', $results_group_id)
-                ->get();
-
-            $result[$key]['subjectCode'] = $result_subject;
-            $result[$key]['professorId'] = $result_professor;
-            $result[$key]['groupCode'] = $result_group;
-        }
-        $date = Carbon::now()->format('D M j G:i:s T Y');
-        $exp = explode(" ",$date);
-        // $data = $date->format('M d Y');
-
+    public function listCourse_Id($courseId){
+        $result = Course::where('courseId',$courseId)->get();
         return response()->json($result);
     }
 
-    public function listCourses_AllStatus($page){
-        $strpro = "";
-        $results = Course::offset($page)->limit('10')->get();
-        $all_results = Course::get();
+    public function listCourses_AllStatus(){
+        $results = Course::get();
         foreach($results as $key => $value){
+            $arr_professor = explode(',',$value['professorId']);
+            $professor = Professors::whereIn('professorId', $arr_professor)->get();
+            $profes = '';
+                    foreach($professor as $keyp => $valuep){
+                        $profes = 'อ.'.$valuep['fullName'].', '.$profes;
+                    }
+                    $profes = substr($profes, 0, -2);
 
-            $results_professor_id = explode('+',$value['professorId']);
-            $result_professor = Professors::whereIn('id', $results_professor_id)
-                ->get();
-            $result_group = Groups::where('groupCode', $value['groupCode'])
-                ->get();
-            $result_subject = Subjects::where('subjectCode',$value['subjectCode'])
-                ->get();
-            $strpro = "";
-            foreach($result_professor as $key_pro => $value_pro){
-                $strpro = $strpro.$value_pro['firstNameThai']." ".$value_pro['lastNameThai'].", ";
-            }
-            $results[$key]['professorId'] = $strpro;
-            $results[$key]['subjectCode'] = $result_subject;
-            // $results[$key]['group_code'] = $result_group;
-            $results[$key]['count'] = $all_results->count();
+            $subject = Subjects::where('subjectCode',$value['subjectCode'])->get();
+            
+            $results[$key]['professorId'] = $profes;
+            $results[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
         }
-        return response()->json($results);
-    }
-
-    public function searchCourse($sub_code){
-        $results = Course::where('sub_code',$sub_code)->get();
-
-        foreach($results as $key => $value){
-
-            $result_subject = Subjects::where('sub_code',$value['sub_code'])
-                ->get();
-            $result_professor = Professors::where('id', $value['professor_id'])
-                ->get();
-            $result_group = Groups::where('group_code', $value['group_code'])
-                ->get();
-            $results[$key]['sub_code'] = $result_subject;
-            $results[$key]['professor_id'] = $result_professor;
-            $results[$key]['group_code'] = $result_group;
-        }
-
-        return response()->json($results);
-    }
-
-    //ค้นหาคอร์สเรียน
-    public function Search_Course(Request $request){
-        $strpro = "";
-        $results = Course::join('subjects','course.subjectCode', '=','subjects.subjectCode')->join('professor','course.professorId','=','professor.id')->select('course.*','subjects.subjectCode', 'subjects.subjectName', 'subjects.educationLevel','subjects.facultyId','professor.firstNameThai','professor.lastNameThai')
-                            ->where('subjects.educationLevel','like','%'.$request->educationLevel.'%')
-                            ->where('subjects.facultyId','like','%'.$request->facultyId.'%')
-                            ->where('subjects.subjectCode','like','%'.$request->subjectCode.'%')
-                            ->where('subjects.subjectName','like','%'.$request->subjectName.'%')
-                            ->offset($request->page)->limit('10')
-                            ->get();
-        $all_results = Course::join('subjects','course.subjectCode', '=','subjects.subjectCode')->join('professor','course.professorId','=','professor.id')->select('course.*','subjects.subjectCode', 'subjects.subjectName', 'subjects.educationLevel','subjects.facultyId','professor.firstNameThai','professor.lastNameThai')
-                            ->where('subjects.educationLevel','like','%'.$request->educationLevel.'%')
-                            ->where('subjects.facultyId','like','%'.$request->facultyId.'%')
-                            ->where('subjects.subjectCode','like','%'.$request->subjectCode.'%')
-                            ->where('subjects.subjectName','like','%'.$request->subjectName.'%')
-                            ->get();
-
-        foreach($results as $key => $value){
-
-            $results_professor_id = explode('+',$value['professorId']);
-            $result_professor = Professors::whereIn('id', $results_professor_id)
-                ->get();
-            $result_group = Groups::where('groupCode', $value['groupCode'])
-                ->get();
-            $result_subject = Subjects::where('subjectCode',$value['subjectCode'])
-                ->get();
-            $strpro = "";
-            foreach($result_professor as $key_pro => $value_pro){
-                $strpro = $strpro.$value_pro['firstNameThai']." ".$value_pro['lastNameThai'].", ";
-            }
-            $results[$key]['professorId'] = $strpro;
-            $results[$key]['subjectCode'] = $result_subject;
-            $results[$key]['count'] = $all_results->count();
-        }
-
-        return response()->json($results);
-    }
-
-    public function Search_Course_Active(Request $request){
-        $strpro = "";
-        $results = Course::join('subjects','course.subjectCode', '=','subjects.subjectCode')->join('professor','course.professorId','=','professor.id')->select('course.*','subjects.subjectCode', 'subjects.subjectName', 'subjects.educationLevel','subjects.facultyId','professor.firstNameThai','professor.lastNameThai')
-                            ->where('subjects.educationLevel','like','%'.$request->educationLevel.'%')
-                            ->where('subjects.facultyId','like','%'.$request->facultyId.'%')
-                            ->where('subjects.subjectCode','like','%'.$request->subjectCode.'%')
-                            ->where('subjects.subjectName','like','%'.$request->subjectName.'%')
-                            ->where('course.status','1')
-                            ->offset($request->page)->limit('10')
-                            ->get();
-        $all_results = Course::join('subjects','course.subjectCode', '=','subjects.subjectCode')->join('professor','course.professorId','=','professor.id')->select('course.*','subjects.subjectCode', 'subjects.subjectName', 'subjects.educationLevel','subjects.facultyId','professor.firstNameThai','professor.lastNameThai')
-                            ->where('subjects.educationLevel','like','%'.$request->educationLevel.'%')
-                            ->where('subjects.facultyId','like','%'.$request->facultyId.'%')
-                            ->where('subjects.subjectCode','like','%'.$request->subjectCode.'%')
-                            ->where('subjects.subjectName','like','%'.$request->subjectName.'%')
-                            ->where('course.status','1')
-                            ->get();
-
-        foreach($results as $key => $value){
-
-            $results_professor_id = explode('+',$value['professorId']);
-            $result_professor = Professors::whereIn('id', $results_professor_id)
-                ->get();
-            $result_group = Groups::where('groupCode', $value['groupCode'])
-                ->get();
-            $result_subject = Subjects::where('subjectCode',$value['subjectCode'])
-                ->get();
-            $strpro = "";
-            foreach($result_professor as $key_pro => $value_pro){
-                $strpro = $strpro.$value_pro['firstNameThai']." ".$value_pro['lastNameThai'].", ";
-            }
-            $results[$key]['professorId'] = $strpro;
-            $results[$key]['subjectCode'] = $result_subject;
-            $results[$key]['count'] = $all_results->count();
-        }
-
         return response()->json($results);
     }
 

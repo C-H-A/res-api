@@ -17,7 +17,7 @@ class RoomController extends BaseController
         foreach($results as $key => $value){
             $result_type = Room_type::where('typeId',$value['typeId'])
                 ->get();
-            $result_bd = Building::where('building_number',$value['buildingNumber'])
+            $result_bd = Building::where('buildingNumber',$value['buildingNumber'])
                 ->get();
             $results_reser = Reservation::where('roomId',$value['roomId'])
                                         ->where('startDate',$request->startDate)
@@ -50,7 +50,7 @@ class RoomController extends BaseController
             }
             // $results[$key]['reservation'] = $results_reser;
             $results[$key]['typeId'] = $result_type[0]['typeName'];
-            $results[$key]['buildingNumber'] = $result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
+            $results[$key]['buildingNumber'] = $result_bd[0]['buildingNumber']." : ".$result_bd[0]['buildingName'];
         }
         return response()->json($results);
     }
@@ -71,29 +71,13 @@ class RoomController extends BaseController
         return response()->json($results);
     }
 
-    public function listRoom($page){
-        $results = Room::where('status',1)->offset($page)->limit('10')->get();
-        $all_results = Room::where('status',1)->get();
-        foreach($results as $key => $value){
-            $result_type = Room_type::where('typeId',$value['typeId'])
-                ->get();
-            $result_bd = Building::where('building_number',$value['buildingNumber'])
-                ->get();
-            $results[$key]['typeId'] = $result_type[0]['typeName'];
-            $results[$key]['buildingNumber'] = $result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
-            $results[$key]['count'] = $all_results->count();
-        }
-
-        return response()->json($results);
-    }
-
-    public function listRoomId($id){
-        $result = Room::where('roomId',$id)->get();
+    public function listRoomId($roomId){
+        $result = Room::where('roomId',$roomId)->get();
         foreach($result as $key => $value){
             $result_img = Images::where('imgGroup',$value['roomId'])->get();
             $result_type = Room_type::where('typeId',$value['typeId'])
                 ->get();
-            $result_bd = Building::where('building_number',$value['buildingNumber'])
+            $result_bd = Building::where('buildingNumber',$value['buildingNumber'])
                 ->get();
             
             if($result_img != '[]'){
@@ -101,120 +85,63 @@ class RoomController extends BaseController
             }
             $result[$key]['capacity'] = $value['capacity']." ที่นั่ง";
             $result[$key]['typeId'] = $result_type[0]['typeName'];
-            $result[$key]['buildingNumber'] = "อาคาร ".$result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
+            $result[$key]['buildingNumber'] = "อาคาร ".$result_bd[0]['buildingNumber']." : ".$result_bd[0]['buildingName'];
         }
 
         return response()->json($result);
     }
 
-    public function listRooms_AllStatus($page){
-        $results = Room::offset($page)->limit('10')->get();
-        $all_results = Room::get();
+    public function listRooms_AllStatus(){
+        $results = Room::get();
         foreach($results as $key => $value){
 
             $result_type = Room_type::where('typeId',$value['typeId'])
                 ->get();
-            $result_bd = Building::where('building_number',$value['buildingNumber'])
+            $result_bd = Building::where('buildingNumber',$value['buildingNumber'])
                 ->get();
             $results[$key]['typeId'] = $result_type[0]['typeName'];
-            $results[$key]['buildingNumber'] = $result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
-            $results[$key]['count'] = $all_results->count();
+            $results[$key]['buildingNumber'] = $result_bd[0]['buildingNumber']." : ".$result_bd[0]['buildingName'];
         }
 
         return response()->json($results);
     }
 
-    public function SearchRoom(Request $request){
-        $result = Room::Where('roomType',$request->type)->OrWhere('floor_number',$request->floor)->Where('roomId',$request->roomnum)->get();
+    public function listRoomById($roomId){
+        $result = Room::where('roomId',$roomId)->get();
         return response()->json($result);
-    }
-
-    public function Search_Room(Request $request){
-        $results = Room::where('roomId','like','%'.$request->room_id.'%')
-                            ->Where('roomName','like','%'.$request->room_name.'%')
-                            ->Where('buildingNumber','like','%'.$request->bd_num)
-                            ->Where('typeId','like','%'.$request->type_id.'%')
-                            ->Where('capacity','like','%'.$request->capacity.'%')
-                            ->offset($request->page)->limit('10')
-                            ->get();
-        $all_results = Room::where('roomId','like','%'.$request->room_id.'%')
-                            ->Where('roomName','like','%'.$request->room_name.'%')
-                            ->Where('buildingNumber','like','%'.$request->bd_num)
-                            ->Where('typeId','like','%'.$request->type_id.'%')
-                            ->Where('capacity','like','%'.$request->capacity.'%')
-                            ->get();
-        foreach($results as $key => $value){
-
-            $result_type = Room_type::where('typeId',$value['typeId'])
-                ->get();
-            $result_bd = Building::where('building_number',$value['buildingNumber'])
-                ->get();
-            $results[$key]['typeId'] = $result_type[0]['typeName'];
-            $results[$key]['buildingNumber'] = $result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
-            $results[$key]['count'] = $all_results->count();
-        }
-
-        return response()->json($results);
-    }
-
-    public function listRoomByType($typeId){
-        $result = Room::where('typeId',$typeId)->where('status',1)->get();
-
-            foreach($result as $key => $value){
-                $result_roomtype = Room_type::where('typeId',$value['typeId'])->get();
-                $result_roomcost = Room_cost::where('costId',$value['costId'])->get();
-
-                $result[$key]['typeId'] = $result_roomtype[0];
-                if($result_roomcost != "[]"){
-                    $result[$key]['costId'] = $result_roomcost[0];
-                    
-                }else{
-                    $result[$key]['costId'] = array("extePrice"=>"กรุณาติดต่อขอรายละเอียดเพิ่มเติมกับเจ้าหน้าที่", "intePrice"=>0);
-                }
-            }
-        return response()->json($result);
-    }
-
-    public function listRoomByType_Page(Request $request){
-        $results = Room::where('typeId',$request->typeId)->where('status',1)->offset($request->page)->limit('10')->get();
-        $all_results = Room::where('typeId',$request->typeId)->where('status',1)->get();
-        
-        foreach($results as $key => $value){
-            $result_type = Room_type::where('typeId',$value['typeId'])
-                ->get();
-            $result_bd = Building::where('building_number',$value['buildingNumber'])
-                ->get();
-            $results[$key]['typeId'] = $result_type[0]['typeName'];
-            $results[$key]['buildingNumber'] = $result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
-            $results[$key]['count'] = $all_results->count();
-        }
-        return response()->json($results);
     }
 
     public function addRoom(Request $request){
+        $result = Room::where('roomId',$request->roomId)->get();
+        $resp = array('status'=>0, 'message'=>'');
         $newRoom = new Room;
-        $newRoom->roomId          = $request->room_id;
-        $newRoom->roomName        = $request->room_name;
-        $newRoom->roomDescription = $request->room_description;
-        $newRoom->buildingNumber  = $request->bd_num;
+        $newRoom->roomId           = $request->roomId;
+        $newRoom->roomName         = $request->roomName;
+        $newRoom->roomDescription  = $request->roomDescription;
+        $newRoom->buildingNumber   = $request->buildingNumber;
         $newRoom->capacity         = $request->capacity;
         $newRoom->tools            = $request->tools;
-        $newRoom->typeId          = $request->type_id;
+        $newRoom->typeId           = $request->typeId;
         $newRoom->status           = 1;
-        $newRoom->save();
+        if($result == '[]'){
+            $newRoom->save();
+            $resp = array('status'=>1, 'message'=>'เพิ่มห้อง : '.$request->roomId.' สำเร็จ');
+        }else{
+            $resp = array('status'=>0, 'message'=>'เพิ่มห้องไม่สำเร็จ หมายเหตุ : '.$request->roomId.' หมายเลขห้องซ้ำ');
+        }
 
-        return response()->json($request);
+        return response()->json($resp);
     }
 
     public function editRoom(Request $request){
-        Room::where('roomId',$request->room_id)
+        Room::where('roomId',$request->roomId)
             ->update([
-                'roomName'        => $request->room_name,
-                'roomDescription' => $request->room_description,
-                'buildingNumber'  => $request->bd_num,
+                'roomName'        => $request->roomName,
+                'roomDescription' => $request->roomDescription,
+                'buildingNumber'  => $request->buildingNumber,
                 'capacity'        => $request->capacity,
                 'tools'           => $request->tools,
-                'typeId'          => $request->type_id
+                'typeId'          => $request->typeId
             ]);
 
         $resp = array('status'=>1, 'message'=>'Edit success');
@@ -222,118 +149,33 @@ class RoomController extends BaseController
     }
 
     public function changstatusRoom(Request $request){
-        Room::where('roomId',$request->room_id)
-            ->update([
-                'status' => $request->status
-            ]);
-
-        $resp = array('status'=>1, 'message'=>'Change Status Success');
-        return response()->json($request);
+        $results = Room::join('reservations','room.roomId','=','reservations.roomId')
+                            ->select('room.roomId','room.roomName','reservations.reservationId')
+                            ->where('room.roomId',$request->roomId)->get();
+        $resp = array('status'=>1, 'message'=>'');
+            if($results == '[]'){
+                Room::where('roomId',$request->roomId)
+                    ->update(['status' => $request->status]);
+                $resp = array('status'=>1, 'message'=>'เปลี่ยนสถานะห้องสำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'เปลี่ยนสถานะห้องไม่สำเร็จ หมายเหตุ : '.$request->roomId.' มีรายการจองอยู่');
+            }
+        return response()->json($resp);
     }
 
         public function deleteRoom(Request $request){
-        $deleteRoom = Room::where('roomId',$request->roomId)->delete();
-
-        return response()->json($request);
-    }
-
-    //Room Type
-    public function listRoomType(){
-        $results = Room_type::get();
-
-        return response()->json($results);
-    }
-
-    public function listRoomType_ById($type_id){
-        $result = Room_type::where('type_id',$type_id)->get();
-
-        return response()->json($result);
-    }
-
-    public function listTimeStart(Request $request){
-        date_default_timezone_set('Asia/Bangkok');
-        $today = date("Y-m-d");
-        $timetoday = date("H:i:s");
-        $timearr = array(
-                    ["value"=>"","time"=>"--- เลือกเวลาเริ่มต้น ---","disabled"=>false],
-                    ["value"=>"08:00:00","time"=>"08:00","disabled"=>false],
-                    ["value"=>"09:00:00","time"=>"09:00","disabled"=>false],
-                    ["value"=>"10:00:00","time"=>"10:00","disabled"=>false],
-                    ["value"=>"11:00:00","time"=>"11:00","disabled"=>false],
-                    ["value"=>"12:00:00","time"=>"12:00","disabled"=>false],
-                    ["value"=>"13:00:00","time"=>"13:00","disabled"=>false],
-                    ["value"=>"14:00:00","time"=>"14:00","disabled"=>false],
-                    ["value"=>"15:00:00","time"=>"15:00","disabled"=>false],
-                    ["value"=>"16:00:00","time"=>"16:00","disabled"=>false],
-                    ["value"=>"17:00:00","time"=>"17:00","disabled"=>false],
-                    ["value"=>"18:00:00","time"=>"18:00","disabled"=>false],
-                    ["value"=>"19:00:00","time"=>"19:00","disabled"=>false],
-                    ["value"=>"20:00:00","time"=>"20:00","disabled"=>false],
-                    ["value"=>"21:00:00","time"=>"21:00","disabled"=>false],
-                    ["value"=>"22:00:00","time"=>"22:00","disabled"=>false],
-                    );
-        
-        if($today == $request->date){
-            for($i = 0; $i <= sizeof($timearr)-1; $i++){
-                if((explode(":",$timetoday)[0]) > (explode(":",$timearr[$i]['value'])[0])){
-                    $timearr[$i]['disabled'] = true;
-                }else{
-                    $timearr[$i]['disabled'] = false;
-                }
+        $results = Room::join('reservations','room.roomId','=','reservations.roomId')
+                            ->select('room.roomId','room.roomName','reservations.reservationId')
+                            ->where('room.roomId',$request->roomId)->get();
+        $resp = array('status'=>1, 'message'=>'');
+            if($results == '[]'){
+                $deleteRoom = Room::where('roomId',$request->roomId)->delete();
+                $resp = array('status'=>1, 'message'=>'ลบห้อง : '.$request->roomId.' สำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'ลบห้องไม่สำเร็จ หมายเหตุ : '.$request->roomId.' มีรายการจองอยู่');
             }
-        }else{
-            for($i = 0; $i <= sizeof($timearr)-1; $i++){
-                $timearr[$i]['disabled'] = false;
-            }
-        }
-        return response()->json($timearr);
-    }
 
-    public function listTimeEnd(Request $request){
-        date_default_timezone_set('UTC');
-        $today = date("Y-m-d");
-        $timetoday = date("H:i:s");
-        $timearr = array(
-                    ["value"=>"08:00:00","time"=>"08:00","disabled"=>false],
-                    ["value"=>"09:00:00","time"=>"09:00","disabled"=>false],
-                    ["value"=>"10:00:00","time"=>"10:00","disabled"=>false],
-                    ["value"=>"11:00:00","time"=>"11:00","disabled"=>false],
-                    ["value"=>"12:00:00","time"=>"12:00","disabled"=>false],
-                    ["value"=>"13:00:00","time"=>"13:00","disabled"=>false],
-                    ["value"=>"14:00:00","time"=>"14:00","disabled"=>false],
-                    ["value"=>"15:00:00","time"=>"15:00","disabled"=>false],
-                    ["value"=>"16:00:00","time"=>"16:00","disabled"=>false],
-                    ["value"=>"17:00:00","time"=>"17:00","disabled"=>false],
-                    ["value"=>"18:00:00","time"=>"18:00","disabled"=>false],
-                    ["value"=>"19:00:00","time"=>"19:00","disabled"=>false],
-                    ["value"=>"20:00:00","time"=>"20:00","disabled"=>false],
-                    ["value"=>"21:00:00","time"=>"21:00","disabled"=>false],
-                    ["value"=>"22:00:00","time"=>"22:00","disabled"=>false],
-                    );
-        if($today == $request->date){
-            for($i = 0; $i <= sizeof($timearr); $i++){
-                if($timearr[$i]['value'] == $request->time){
-                    $timearr[$i]['disabled'] == true;
-                }
-            }
-        }
-
-        return response()->json($timearr);
-    }
-
-    //admin
-    public function listRooms(){
-        $results = Room::select('roomId','roomName','roomDescription','typeId','buildingNumber','capacity','status')->get();
-        foreach($results as $key => $value){
-            $result_type = Room_type::where('typeId',$value['typeId'])
-                ->get();
-            $result_bd = Building::where('building_number',$value['buildingNumber'])
-                ->get();
-            $results[$key]['typeId'] = $result_type[0]['typeName'];
-            $results[$key]['buildingNumber'] = $result_bd[0]['building_number']." : ".$result_bd[0]['building_name'];
-            // $results[$key]['count'] = $all_results->count();
-        }
-        return response()->json($results);
+        return response()->json($resp);
     }
 
 }
