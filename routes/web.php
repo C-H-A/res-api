@@ -307,6 +307,24 @@ $router->post('/admin/subject/edit', 'Api\SubjectsController@editSubject');
 $router->post('/admin/subject/del', 'Api\SubjectsController@changstatusSubject');
 $router->post('/admin/subject/change', 'Api\SubjectsController@deleteSubject');
 
+//PROFESSORS
+$router->get('/user/professor', 'Api\ProfessorsController@listProfessors');
+$router->get('/admin/professor', 'Api\ProfessorsController@listProfessors_AllStatus');
+$router->get('/admin/professorid/{professorId}', 'Api\ProfessorsController@listProfessor_ById');
+$router->post('/admin/professor/add', 'Api\ProfessorsController@addProfessor');
+$router->post('/admin/professor/edit', 'Api\ProfessorsController@editProfessor');
+$router->post('/admin/professor/del', 'Api\ProfessorsController@deleteProfessor');
+$router->post('/admin/professor/change', 'Api\ProfessorsController@changstatusProfessor');
+
+//GROUP
+$router->get('/user/group', 'Api\GroupsController@listGroups');
+$router->get('/admin/group', 'Api\GroupsController@listGroups_AllStatus');
+$router->get('/admin/groupcode/{groupCode}', 'Api\GroupsController@listGroup_Id');
+$router->post('/admin/group/add', 'Api\GroupsController@addGroup');
+$router->post('/admin/group/edit', 'Api\GroupsController@editGroup');
+$router->post('/admin/group/del', 'Api\GroupsController@deleteGroup');
+$router->post('/admin/group/change', 'Api\GroupsController@changstatusGroup');
+
 Route::get('storage/{filename}', function ($filename)
 {
     return Image::make(storage_path('public/images/' . $filename))->response();

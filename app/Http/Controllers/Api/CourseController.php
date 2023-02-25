@@ -71,7 +71,6 @@ class CourseController extends BaseController
                 'subjectCode'        => $request->subjectCode,
                 'professorId'        => $request->professorId,
                 'groupCode'          => $request->groupCode,
-                // 'programId'       => $request->programId,
             ]);
 
         $resp = array('status'=>1, 'message'=>'Edit success');
@@ -79,19 +78,30 @@ class CourseController extends BaseController
     }
 
     public function deleteCourse(Request $request){
-        $deleteCourse = Course::where('courseId',$request->courseId)->delete();
-
-        return response()->json($request);
+        $results = Course::join('reservations','course.courseId','=','reservations.courseId')
+                            ->where('course.courseId',$request->courseId)->get();
+        $resp = array('status'=>1, 'message'=>'');
+            if($results == '[]'){
+                $deleteCourse = Course::where('courseId',$request->courseId)->delete();
+                $resp = array('status'=>1, 'message'=>'ลบคอร์สเรียนสำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'ลบคอร์สเรียนไม่สำเร็จ');
+            }
+        return response()->json($resp);
     }
 
     public function changstatusCourse(Request $request){
-        Course::where('courseId',$request->courseId)
-            ->update([
-                'status' => $request->status
-            ]);
-
-        $resp = array('status'=>1, 'message'=>'Change Status Success');
-        return response()->json($request);
+        $results = Course::join('reservations','course.courseId','=','reservations.courseId')
+                            ->where('course.courseId',$request->courseId)->get();
+        $resp = array('status'=>1, 'message'=>'');
+            if($results == '[]'){
+                Course::where('courseId',$request->courseId)
+                        ->update(['status' => $request->status]);
+                $resp = array('status'=>1, 'message'=>'เปลี่ยนสถานะคอร์สเรียนสำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'เปลี่ยนสถานะคอร์สเรียนไม่สำเร็จ');
+            }
+        return response()->json($resp);
     }
 
 }
