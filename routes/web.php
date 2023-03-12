@@ -304,8 +304,8 @@ $router->get('/admin/subject', 'Api\SubjectsController@listSubjects_AllStatus');
 $router->get('/admin/subjectcode/{subjectCode}', 'Api\SubjectsController@listSubject_ById');
 $router->post('/admin/subject/add', 'Api\SubjectsController@addSubject');
 $router->post('/admin/subject/edit', 'Api\SubjectsController@editSubject');
-$router->post('/admin/subject/del', 'Api\SubjectsController@changstatusSubject');
-$router->post('/admin/subject/change', 'Api\SubjectsController@deleteSubject');
+$router->post('/admin/subject/del', 'Api\SubjectsController@deleteSubject');
+$router->post('/admin/subject/change', 'Api\SubjectsController@changstatusSubject');
 
 //PROFESSORS
 $router->get('/user/professor', 'Api\ProfessorsController@listProfessors');

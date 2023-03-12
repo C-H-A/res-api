@@ -8,6 +8,8 @@ use App\Models\Course;
 use App\Models\Subjects;
 use App\Models\Professors;
 use App\Models\Groups;
+use App\Models\Faculty;
+use App\Models\Education;
 
 class CourseController extends BaseController
 {
@@ -32,6 +34,25 @@ class CourseController extends BaseController
 
     public function listCourse_Id($courseId){
         $result = Course::where('courseId',$courseId)->get();
+        foreach($result as $key => $value){
+            $arr_professor = explode(',',$value['professorId']);
+            $professor = Professors::whereIn('professorId', $arr_professor)->get();
+            foreach($professor as $keyp => $valuep){
+                $faculty = Faculty::where('facultyId',$valuep['facultyId'])->get();
+                $professor[$keyp]['facultyId'] = $faculty[0]['facultyId'].' : '.$faculty[0]['facultyName'];
+            }
+            $arr_group = explode('+',$value['groupCode']);
+            $group = Groups::whereIn('groupCode',$arr_group)->get();
+            foreach($group as $keyg => $valueg){
+                $education = Education::where('educationId',$valueg['educationLevel'])->get();
+                $group[$keyg]['educationLevel'] = $education[0]['educationName'];
+            }
+            $subject = Subjects::where('subjectCode',$value['subjectCode'])->get();
+            
+            $result[$key]['professorId'] = $professor;
+            $result[$key]['groupCode'] = $group;
+            $result[$key]['subjectCode'] = $subject;
+        }
         return response()->json($result);
     }
 
