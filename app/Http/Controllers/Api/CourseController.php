@@ -70,7 +70,10 @@ class CourseController extends BaseController
             $subject = Subjects::where('subjectCode',$value['subjectCode'])->get();
             
             $results[$key]['professorId'] = $profes;
-            $results[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
+            if($subject != "[]"){
+                $results[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
+            }
+            // $results[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
         }
         return response()->json($results);
     }
