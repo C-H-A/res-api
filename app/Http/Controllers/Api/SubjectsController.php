@@ -24,8 +24,8 @@ class SubjectsController extends BaseController
         return response()->json($results);
     }
 
-    public function listSubject_ById($subjectCode){
-        $results = Subjects::where('subjectCode',$subjectCode)->get();
+    public function listSubject_ById($subjectId){
+        $results = Subjects::where('subjectId',$subjectId)->get();
 
         return response()->json($results);
     }
@@ -57,8 +57,9 @@ class SubjectsController extends BaseController
     }
 
     public function editSubject(Request $request){
-        Subjects::where('subjectCode',$request->subjectCode)
+        Subjects::where('subjectId',$request->subjectId)
             ->update([
+                'subjectCode'        => $request->subjectCode,
                 'subjectName'        => $request->subjectName,
                 'facultyId'          => $request->facultyId,
                 'educationLevel'     => $request->educationLevel,
@@ -69,11 +70,11 @@ class SubjectsController extends BaseController
     }
 
     public function changstatusSubject(Request $request){
-        $results = Subjects::join('course','subjects.subjectCode','=','course.subjectCode')
-                            ->where('subjects.subjectCode',$request->subjectCode)->get();
+        $results = Subjects::join('course','subjects.subjectId','=','course.subjectId')
+                            ->where('subjects.subjectId',$request->subjectId)->get();
         $resp = array('status'=>1, 'message'=>'');
             if($results == '[]'){
-                Subjects::where('subjectCode',$request->subjectCode)
+                Subjects::where('subjectId',$request->subjectId)
                             ->update(['status' => $request->status]);
                 $resp = array('status'=>1, 'message'=>'แก้ไขข้อมูลรายวิชาสำเร็จ');
             }else{
@@ -83,11 +84,11 @@ class SubjectsController extends BaseController
     }
 
     public function deleteSubject(Request $request){
-        $results = Subjects::join('course','subjects.subjectCode','=','course.subjectCode')
-                            ->where('subjects.subjectCode',$request->subjectCode)->get();
+        $results = Subjects::join('course','subjects.subjectId','=','course.subjectId')
+                            ->where('subjects.subjectId',$request->subjectId)->get();
         $resp = array('status'=>1, 'message'=>'');
             if($results == '[]'){
-                $deleteSubject = Subjects::where('subjectCode',$request->subjectCode)->delete();
+                $deleteSubject = Subjects::where('subjectId',$request->subjectId)->delete();
                 $resp = array('status'=>1, 'message'=>'ลบข้อมูลรายวิชาสำเร็จ');
             }else{
                 $resp = array('status'=>0, 'message'=>'ลบข้อมูลรายวิชาไม่สำเร็จ');

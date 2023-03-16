@@ -24,10 +24,10 @@ class CourseController extends BaseController
                     }
                     $profes = substr($profes, 0, -2);
 
-            $subject = Subjects::where('subjectCode',$value['subjectCode'])->get();
+            $subject = Subjects::where('subjectId',$value['subjectId'])->get();
             
             $results[$key]['professorId'] = $profes;
-            $results[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
+            $results[$key]['subjectId'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
         }
         return response()->json($results);
     }
@@ -47,11 +47,11 @@ class CourseController extends BaseController
                 $education = Education::where('educationId',$valueg['educationLevel'])->get();
                 $group[$keyg]['educationLevel'] = $education[0]['educationName'];
             }
-            $subject = Subjects::where('subjectCode',$value['subjectCode'])->get();
+            $subject = Subjects::where('subjectId',$value['subjectId'])->get();
             
             $result[$key]['professorId'] = $professor;
             $result[$key]['groupCode'] = $group;
-            $result[$key]['subjectCode'] = $subject;
+            $result[$key]['subjectId'] = $subject;
         }
         return response()->json($result);
     }
@@ -67,11 +67,11 @@ class CourseController extends BaseController
                     }
                     $profes = substr($profes, 0, -2);
 
-            $subject = Subjects::where('subjectCode',$value['subjectCode'])->get();
+            $subject = Subjects::where('subjectId',$value['subjectId'])->get();
             
             $results[$key]['professorId'] = $profes;
             if($subject != "[]"){
-                $results[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
+                $results[$key]['subjectId'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
             }
             // $results[$key]['subjectCode'] = "[".$subject[0]['subjectCode']."] : ".$subject[0]['subjectName'];
         }
@@ -80,7 +80,7 @@ class CourseController extends BaseController
 
     public function addCourse(Request $request){
         $newCourse = new Course;
-        $newCourse->subjectCode     = $request->subjectCode;
+        $newCourse->subjectId       = $request->subjectId;
         $newCourse->professorId     = $request->professorId;
         $newCourse->groupCode       = $request->groupCode;
         $newCourse->status          = 1;
@@ -92,7 +92,7 @@ class CourseController extends BaseController
     public function editCourse(Request $request){
         Course::where('courseId',$request->courseId)
             ->update([
-                'subjectCode'        => $request->subjectCode,
+                'subjectId'          => $request->subjectId,
                 'professorId'        => $request->professorId,
                 'groupCode'          => $request->groupCode,
             ]);
