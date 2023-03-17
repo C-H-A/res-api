@@ -325,6 +325,15 @@ $router->post('/admin/group/edit', 'Api\GroupsController@editGroup');
 $router->post('/admin/group/del', 'Api\GroupsController@deleteGroup');
 $router->post('/admin/group/change', 'Api\GroupsController@changstatusGroup');
 
+//FACULTY
+$router->get('/user/faculty', 'Api\FacultyController@listFaculty');
+$router->get('/admin/faculty', 'Api\FacultyController@listFaculty_AllStatus');
+$router->get('/admin/facultyid/{facultyId}', 'Api\FacultyController@listFaculty_ById');
+$router->post('/admin/faculty/add', 'Api\FacultyController@addFaculty');
+$router->post('/admin/faculty/edit', 'Api\FacultyController@editFaculty');
+$router->post('/admin/faculty/del', 'Api\FacultyController@deleteFaculty');
+$router->post('/admin/faculty/change', 'Api\FacultyController@changstatusFaculty');
+
 Route::get('storage/{filename}', function ($filename)
 {
     return Image::make(storage_path('public/images/' . $filename))->response();
