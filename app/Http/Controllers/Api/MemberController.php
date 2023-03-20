@@ -114,4 +114,22 @@ class MemberController extends BaseController
         return response()->json($resp);
     }
 
+    public function listUsers($token){
+        $results = Member::whereNotIn('token',[$token])->whereIn('status',[0,1])
+                            ->select('email','firstNameThai','lastNameThai','levelId','studentId','tel','status')
+                            ->get();
+        foreach($results as $key => $value){
+            $level = User_level::where('levelId', $value['levelId'])->get();
+            $results[$key]['levelId'] = $level[0]['levelName'];
+        }
+        return response()->json($results);
+    }
+
+    public function listUser_Mail($email){
+        $results = Member::where('email',$email)
+                        ->select('email','firstNameThai','lastNameThai','levelId','studentId','tel','status')
+                        ->get();
+        return response()->json($results);
+    }
+
 }

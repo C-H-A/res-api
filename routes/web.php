@@ -334,6 +334,23 @@ $router->post('/admin/faculty/edit', 'Api\FacultyController@editFaculty');
 $router->post('/admin/faculty/del', 'Api\FacultyController@deleteFaculty');
 $router->post('/admin/faculty/change', 'Api\FacultyController@changstatusFaculty');
 
+//EDUCATION
+$router->get('/user/education', 'Api\EducationController@listEducation');
+$router->get('/admin/education', 'Api\EducationController@listEducation_AllStatus');
+$router->get('/admin/educationid/{educationId}', 'Api\EducationController@listEducation_ById');
+$router->post('/admin/education/add', 'Api\EducationController@addEducation');
+$router->post('/admin/education/edit', 'Api\EducationController@editEducation');
+$router->post('/admin/education/del', 'Api\EducationController@deleteEducation');
+$router->post('/admin/education/change', 'Api\EducationController@changstatusEducation');
+
+//USER
+$router->get('/user/petition', 'Api\MemberController@listEducation');
+$router->get('/user/all/{token}', 'Api\MemberController@listUsers');
+$router->get('/user/mail/{email}', 'Api\MemberController@listUser_Mail');
+$router->post('/user/edit', 'Api\MemberController@editUser');
+$router->post('/user/del', 'Api\MemberController@deleteUser');
+$router->post('/user/change', 'Api\MemberController@changstatusUser');
+
 Route::get('storage/{filename}', function ($filename)
 {
     return Image::make(storage_path('public/images/' . $filename))->response();
