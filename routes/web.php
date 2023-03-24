@@ -344,9 +344,10 @@ $router->post('/admin/education/del', 'Api\EducationController@deleteEducation')
 $router->post('/admin/education/change', 'Api\EducationController@changstatusEducation');
 
 //USER
-$router->get('/user/petition', 'Api\MemberController@listEducation');
+$router->post('/user/approve', 'Api\MemberController@approveUser');
+$router->get('/user/petition', 'Api\MemberController@userPetition');
 $router->get('/user/all/{token}', 'Api\MemberController@listUsers');
-$router->get('/user/mail/{email}', 'Api\MemberController@listUser_Mail');
+$router->post('/user/mail', 'Api\MemberController@listUser_Mail');
 $router->post('/user/edit', 'Api\MemberController@editUser');
 $router->post('/user/del', 'Api\MemberController@deleteUser');
 $router->post('/user/change', 'Api\MemberController@changstatusUser');

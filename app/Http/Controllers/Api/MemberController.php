@@ -114,6 +114,7 @@ class MemberController extends BaseController
         return response()->json($resp);
     }
 
+    //สำหรับผู้ใช้ที่ผ่านการยืนยัน
     public function listUsers($token){
         $results = Member::whereNotIn('token',[$token])->whereIn('status',[0,1])
                             ->select('email','firstNameThai','lastNameThai','levelId','studentId','tel','status')
@@ -125,11 +126,70 @@ class MemberController extends BaseController
         return response()->json($results);
     }
 
-    public function listUser_Mail($email){
-        $results = Member::where('email',$email)
+    public function listUser_Mail(Request $request){
+        $results = Member::where('email',$request->email)
                         ->select('email','firstNameThai','lastNameThai','levelId','studentId','tel','status')
                         ->get();
         return response()->json($results);
+    }
+
+    public function editUser(Request $request){
+        Member::where('email',$request->email)
+            ->update([
+                'firstNameThai'      => $request->firstNameThai,
+                'lastNameThai'       => $request->lastNameThai,
+                'tel'                => $request->tel,
+                'levelId'            => $request->levelId,
+            ]);
+
+        $resp = array('status'=>1, 'message'=>'Edit success');
+        return response()->json($resp);
+    }
+
+    public function changstatusUser(Request $request){
+        $reservation = Member::join('reservations','reservations.user','=','member.email')
+                            ->where('member.email',$request->email)->get();
+        $resp = array('status'=>1, 'message'=>'');
+            if($reservation == '[]'){
+                Member::where('email',$request->email)
+                            ->update(['status' => $request->status]);
+                $resp = array('status'=>1, 'message'=>'เปลี่ยนสถานะผู้ใช้งานสำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'เปลี่ยนสถานะผู้ใช้งานไม่สำเร็จ');
+            }
+        return response()->json($resp);
+    }
+
+    public function deleteUser(Request $request){
+        $reservation = Member::join('reservations','reservations.user','=','member.email')
+                            ->where('member.email',$request->email)->get();
+        $resp = array('status'=>1, 'message'=>'');
+            if($reservation == '[]'){
+                $deleteFaculty = Member::where('email',$request->email)->delete();
+                $resp = array('status'=>1, 'message'=>'ลบผู้ใช้งานสำเร็จ');
+            }else{
+                $resp = array('status'=>0, 'message'=>'ลบผู้ใช้งานไม่สำเร็จ');
+            }
+        return response()->json($resp);
+    }
+
+    //สำหรับผู้ใช้ที่ยังไม่ผ่านการยืนยัน
+    public function userPetition(){
+        $results = Member::where('status',2)
+                            ->select('email','firstNameThai','lastNameThai','levelId','studentId','tel','status')
+                            ->get();
+        foreach($results as $key => $value){
+            $level = User_level::where('levelId', $value['levelId'])->get();
+            $results[$key]['levelId'] = $level[0]['levelName'];
+        }
+        return response()->json($results);
+    }
+
+    public function approveUser(Request $request){
+        Member::where('email',$request->email)
+                    ->update(['status' => $request->status]);
+        $resp = array('status'=>1, 'message'=>'อนุมัติผู้ใช้งานสำเร็จ');
+        return response()->json($resp);
     }
 
 }
